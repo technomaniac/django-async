@@ -149,7 +149,6 @@ class WSGIHandler(base.BaseHandler):
 
     def __init__(self, *args, **kwargs):
         super(WSGIHandler, self).__init__(*args, **kwargs)
-        self.start_event_loop()
         self.load_middleware()
 
     def __call__(self, environ, start_response):

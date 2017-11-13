@@ -2,13 +2,10 @@ from __future__ import unicode_literals
 
 import asyncio
 import logging
-import signal
 import sys
 import types
 import warnings
 from asyncio.coroutines import iscoroutine, coroutine
-from functools import partial
-from os import getpid
 
 from django.conf import settings
 from django.core import signals
@@ -48,25 +45,7 @@ class BaseHandler(object):
         self._response_middleware = None
         self._exception_middleware = None
         self._middleware_chain = None
-        self._loop = None
-
-    def start_event_loop(self):
-        if not self._loop:
-            self._loop = get_loop()
-
-        def _stop(signame):
-            print("got signal %s: exit" % signame)
-            self._loop.stop()
-
-        self._loop.add_signal_handler(getattr(signal, 'SIGINT'), partial(_stop, 'SIGINT'))
-        self._loop.add_signal_handler(getattr(signal, 'SIGTERM'), partial(_stop, 'SIGTERM'))
-
-        logger.info("Event loop running forever, press Ctrl+C to interrupt.")
-        logger.info("pid %s: send SIGINT or SIGTERM to exit." % getpid())
-        try:
-            self._loop.run_forever()
-        finally:
-            self._loop.close()
+        self._loop = get_loop()
 
     def load_middleware(self):
         """
