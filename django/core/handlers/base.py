@@ -28,12 +28,14 @@ logger = logging.getLogger('django.request')
 
 def get_loop():
     try:
-        import uvloop
-        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-    except ImportError:
-        logger.warn("uvloop is not installed, event loop will be set to default asyncio loop")
-
-    loop = asyncio.get_event_loop()
+        loop = asyncio.get_event_loop()
+    except:
+        try:
+            import uvloop
+            loop = uvloop.new_event_loop()
+        except ImportError:
+            loop = asyncio.new_event_loop()
+            logger.warn("uvloop is not installed, event loop will be set to default asyncio loop")
 
     return loop
 
