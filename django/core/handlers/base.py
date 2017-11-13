@@ -1,11 +1,9 @@
 from __future__ import unicode_literals
 
-import asyncio
 import logging
 import sys
 import types
 import warnings
-from asyncio.coroutines import iscoroutine, coroutine
 
 from django.conf import settings
 from django.core import signals
@@ -23,20 +21,6 @@ from .exception import (
 logger = logging.getLogger('django.request')
 
 
-def start_event_loop():
-    try:
-        loop = asyncio.get_event_loop()
-    except:
-        try:
-            import uvloop
-            loop = uvloop.new_event_loop()
-        except ImportError:
-            loop = asyncio.new_event_loop()
-            logger.warn("uvloop is not installed, event loop will be set to default asyncio loop")
-
-    return loop
-
-
 class BaseHandler(object):
     def __init__(self):
         self._request_middleware = None
@@ -45,7 +29,6 @@ class BaseHandler(object):
         self._response_middleware = None
         self._exception_middleware = None
         self._middleware_chain = None
-        self._loop = asyncio.get_event_loop()
 
     def load_middleware(self):
         """
@@ -196,11 +179,8 @@ class BaseHandler(object):
 
         if response is None:
             wrapped_callback = self.make_view_atomic(callback)
-            if not iscoroutine(wrapped_callback):
-                wrapped_callback = coroutine(wrapped_callback)
             try:
-                future = asyncio.ensure_future(wrapped_callback(request, *callback_args, **callback_kwargs))
-                response = self._loop.run_until_complete(future)
+                response = wrapped_callback(request, *callback_args, **callback_kwargs)
             except Exception as e:
                 response = self.process_exception_by_middleware(e, request)
 
