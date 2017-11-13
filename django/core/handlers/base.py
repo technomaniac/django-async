@@ -23,7 +23,7 @@ from .exception import (
 logger = logging.getLogger('django.request')
 
 
-def get_loop():
+def start_event_loop():
     try:
         loop = asyncio.get_event_loop()
     except:
@@ -45,7 +45,7 @@ class BaseHandler(object):
         self._response_middleware = None
         self._exception_middleware = None
         self._middleware_chain = None
-        self._loop = get_loop()
+        self._loop = asyncio.get_event_loop()
 
     def load_middleware(self):
         """
