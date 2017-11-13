@@ -13,17 +13,19 @@ logger = logging.getLogger(__name__)
 def start_event_loop():
     loop = get_loop()
 
-    def _stop(signame):
-        logger.warning("got signal %s: exit" % signame)
-        loop.stop()
-
-    loop.add_signal_handler(getattr(signal, 'SIGINT'), partial(_stop, 'SIGINT'))
-    loop.add_signal_handler(getattr(signal, 'SIGTERM'), partial(_stop, 'SIGTERM'))
+    # def _stop(signame):
+    #     logger.warning("got signal %s: exit" % signame)
+    #     loop.stop()
+    #
+    # loop.add_signal_handler(getattr(signal, 'SIGINT'), partial(_stop, 'SIGINT'))
+    # loop.add_signal_handler(getattr(signal, 'SIGTERM'), partial(_stop, 'SIGTERM'))
 
     logger.info("Event loop running forever, press Ctrl+C to interrupt.")
     logger.info("pid %s: send SIGINT or SIGTERM to exit." % getpid())
     try:
         loop.run_forever()
+    except Exception as e:
+        logging.error(str(e))
     finally:
         loop.close()
 
