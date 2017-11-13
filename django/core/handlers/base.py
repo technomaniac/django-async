@@ -2,12 +2,12 @@ from __future__ import unicode_literals
 
 import asyncio
 import logging
+import signal
 import sys
 import types
 import warnings
 from asyncio.coroutines import iscoroutine, coroutine
 from functools import partial
-
 from os import getpid
 
 from django.conf import settings
@@ -54,12 +54,12 @@ class BaseHandler(object):
         if not self._loop:
             self._loop = get_loop()
 
-        def ask_exit(signame):
+        def _stop(signame):
             print("got signal %s: exit" % signame)
             self._loop.stop()
 
-        for signame in ('SIGINT', 'SIGTERM'):
-            self._loop.add_signal_handler(getattr('signal', signame), partial(ask_exit, signame))
+        self._loop.add_signal_handler(getattr(signal, 'SIGINT'), partial(_stop, 'SIGINT'))
+        self._loop.add_signal_handler(getattr(signal, 'SIGTERM'), partial(_stop, 'SIGTERM'))
 
         logger.info("Event loop running forever, press Ctrl+C to interrupt.")
         logger.info("pid %s: send SIGINT or SIGTERM to exit." % getpid())
