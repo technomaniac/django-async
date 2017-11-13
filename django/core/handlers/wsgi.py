@@ -27,6 +27,7 @@ class LimitedStream(object):
     LimitedStream wraps another stream in order to not allow reading from it
     past specified amount of bytes.
     '''
+
     def __init__(self, stream, limit, buf_size=64 * 1024 * 1024):
         self.stream = stream
         self.remaining = limit
@@ -56,7 +57,7 @@ class LimitedStream(object):
 
     def readline(self, size=None):
         while b'\n' not in self.buffer and \
-              (size is None or len(self.buffer) < size):
+            (size is None or len(self.buffer) < size):
             if size:
                 # since size is not None here, len(self.buffer) < size
                 chunk = self._read_limited(size - len(self.buffer))
@@ -148,6 +149,7 @@ class WSGIHandler(base.BaseHandler):
 
     def __init__(self, *args, **kwargs):
         super(WSGIHandler, self).__init__(*args, **kwargs)
+        self.start_event_loop()
         self.load_middleware()
 
     def __call__(self, environ, start_response):
